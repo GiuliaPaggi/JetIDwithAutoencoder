@@ -2,10 +2,44 @@ import ROOT
 import numpy as np
 import pandas as pd
 
-ntupla = "HiddenGluGluH_mH-125_Phi-30_ctau-500"
+ntupla = "HiddenGluGluH_mH-375_Phi-60_ctau-1000"
+
+# finds first non zero element
+def createNew(list) :
+   wh = list[len(list)-2]
+   st = list[len(list)-1]
+
+   #find first non zero per layer
+   sl = [0]*8
+   for i in range(8): 
+      if i == 0 : sl[i] = list[:n_chann]
+      else : sl[i] = list[n_chann+(n_chann*(i-1)):n_chann+(n_chann*i)]
+   first = [next((i for i, x in enumerate(l) if x != 0), 0) for l in sl]
+
+   # find minimal displacement and create copies of the list moving the showers to the left
+   min_displ = min(first)
+   if min_displ == 0: return -1
+   new_list = []
+   for shift in range(1, min_displ+1):
+      new_sl = []
+      for l in sl:
+         l = l[shift:]
+         l.extend([0]*shift)
+         new_sl.extend(l)
+      
+      new_sl.extend((wh, st))
+      new_list.append(new_sl)
+
+   #return new shifted showers
+   return new_list
+  
+   # for l in sl: 
+   #    if first[l] != (n_chann-1) :
+   #       last = [[i for i, x in enumerate(l) if x != 0][-1]]
+   # print (last)
 
 
-
+# prepare files of definite dimension and writes data 
 def writeFiles(toFile, opt) :
 
    names = []
@@ -78,7 +112,11 @@ for i_event, event in enumerate(tree):
          for st in range(4):
             Max = max(digi_list[wh][st][:dimension])
             if Max > 0: 
-               if digi_list[wh][st].count(0) < (dimension - shower_cut):  output.append(digi_list[wh][st])
+               if digi_list[wh][st].count(0) < (dimension - shower_cut):  
+                  output.append(digi_list[wh][st])
+                  augm = createNew(digi_list[wh][st])
+                  if augm != -1 :
+                     output.extend(l for l in augm)
                else : output_muons.append(digi_list[wh][st])
                nDigi[wh][st].Fill( dimension - digi_list[wh][st].count(0) )
 
