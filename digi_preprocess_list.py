@@ -5,7 +5,7 @@ import pandas as pd
 ntupla = "HiddenGluGluH_mH-375_Phi-60_ctau-1000"
 
 # finds first non zero element
-def createNew(list) :
+def createMore(list) :
    wh = list[len(list)-2]
    st = list[len(list)-1]
 
@@ -29,6 +29,21 @@ def createNew(list) :
       
       new_sl.extend((wh, st))
       new_list.append(new_sl)
+
+   # #find last non zero per layer
+   last = [(index for index, item in enumerate(l) if item != 0) for l in sl][-1]
+   min_sx = max(last)
+   if min_sx == 98 : return -1
+   if last != (len(l)-1) :
+      for shift in range(len(l)-min_sx):
+         new_sl = []
+         for l in sl:
+            l = l[:(len(l)-shift)]
+            to_insert = [0]*shift
+            l = to_insert+l
+            new_sl.extend(l)
+         new_sl.extend((wh,st))
+         new_list.append(new_sl)
 
    #return new shifted showers
    return new_list
@@ -81,7 +96,7 @@ output_muons = []
 n_chann = 98
 dimension = (n_chann*8)
 
-shower_cut = 20
+shower_cut = 40
 
 for i_event, event in enumerate(tree):
 
@@ -114,14 +129,18 @@ for i_event, event in enumerate(tree):
             if Max > 0: 
                if digi_list[wh][st].count(0) < (dimension - shower_cut):  
                   output.append(digi_list[wh][st])
-                  augm = createNew(digi_list[wh][st])
+                  # do_copy = np.random.randint(1)
+                  # if do_copy > .2 :
+                  augm = createMore(digi_list[wh][st])
                   if augm != -1 :
                      output.extend(l for l in augm)
-               else : output_muons.append(digi_list[wh][st])
+               else : 
+                  pass
+                  #output_muons.append(digi_list[wh][st])
                nDigi[wh][st].Fill( dimension - digi_list[wh][st].count(0) )
 
 writeFiles(output, "shower")
-writeFiles(output_muons, "muon")
+#writeFiles(output_muons, "muon")
 
 filename = "histos_"+ntupla+".root"
 outfile = ROOT.TFile.Open(filename, "RECREATE")
