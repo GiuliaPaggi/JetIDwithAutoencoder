@@ -1,10 +1,12 @@
 # Jet Identification with autoencoder
-Train an autoencoder to classify jet like events in CMS DTs.
+Train an autoencoder to classify jet-like events in CMS DTs. 
+The autoencoder was chosen since there was an easy identification of DT channels with an image pixel. Moreover, once trained it can be not too sensitive to noisy or dead channels. 
+The choice of training it on showers-like events was due to the fact that most beyond the standard model long-lived heavy particles are predicted to produce this kind of event even in the DTs, located in the outer part of the detector.
 
 
 ## General Information
 The aim of this project is to use an encoder and a fully connected layer to perform a classification of shower events in CMS Drift Tube chambers, in particular using information from the two phi superlayers.
-The simulated data describes the decay of a heavy neutral particle produced in gluon-gluon fusion with 375 GeV mass and decay on average after 1 m in the CMS detector with an average pile up of 200.
+The simulated data describes the decay of a heavy neutral particle produced in gluon-gluon fusion with 375 GeV mass and decay on average after 1 m in the CMS detector with an average pile-up of 200.
 First, an autoencoder is trained with a set of selected shower events. To achieve better results in fewer training epochs, an exponential decay schedule is implemented to progressively reduce the learning rate and an early stop mechanism that stops the train after 10 epochs in which the loss value is larger or equal to the previous epoch value.
 The second part implements a fully connected layer to classify the input as shower or not.
 To build a classification network, the encoder part of the trained autoencoder is used to reduce the dimensionality of each input in the training dataset. Also in this case, the same learning rate schedule and early stopping mechanism are used.
